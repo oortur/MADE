@@ -1,0 +1,20 @@
+hdfs dfs -mkdir /tmp1
+hdfs dfs -mkdir /tmp1/tmp2
+# Trash is a directory in root where any file is temporary saved after deleting
+# one may use flag -skipTrash to remove file without prior moving to Trash
+hdfs dfs -touchz /tmp1/tmp2/file
+hdfs dfs -rm -skipTrash /tmp1/tmp2/file
+hdfs dfs -rm -r -skipTrash /tmp1
+
+hdfs dfs -put file.txt /
+hdfs dfs -cat /file.txt
+hdfs dfs -tail /file.txt
+hdfs dfs -head /file.txt
+hdfs dfs -mkdir /folder
+hdfs dfs -cp /file.txt /folder
+
+hdfs dfs -setrep 2 /file.txt
+# in my case changing replication factor to 2 or 4 happened very quickly (2-5 seconds)
+hdfs fsck /file.txt -files -blocks -locations
+hdfs fsck -blockId blk_1073741830
+
