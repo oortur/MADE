@@ -8,10 +8,67 @@ The Beatles (517126254 scrobbles)
 
 
 
-TODO:
 b) Most popular tag on lastfm
+
+Query:
+SELECT tag_table.tag, COUNT(tag_table.tag) as tag_count FROM (
+    SELECT TRIM(raw_tag) as tag FROM (
+        SELECT artist_mb, SPLIT(artists.tags_lastfm, ';') as tag_list FROM artists
+    ) artists_tags
+    LATERAL VIEW EXPLODE(artists_tags.tag_list) EXPLODED AS raw_tag WHERE LENGTH(raw_tag) > 0
+) tag_table
+GROUP BY tag_table.tag ORDER BY tag_count DESC LIMIT 1;
+
+Answer:
+seen live (99540 times used in data)
+
+
+
 c) Most popular artists from 10 most popular tags on lastfm
-d) ?
+
+Query:
+with stats as (
+    SELECT artist_mb, listeners_lastfm, TRIM(raw_tag) as tag FROM (
+        SELECT artist_mb, listeners_lastfm, SPLIT(artists.tags_lastfm, ';') as tag_list FROM artists
+    ) artists_tags
+    LATERAL VIEW EXPLODE(artists_tags.tag_list) EXPLODED AS raw_tag WHERE LENGTH(raw_tag) > 0
+), top_tags as (
+    SELECT tag, COUNT(tag) as tag_count FROM stats GROUP BY tag ORDER BY tag_count DESC LIMIT 10
+), top_listeners_by_tag as (
+    SELECT tt.tag, s.listeners_lastfm, MAX(s.listeners_lastfm) as max_listeners FROM 
+        stats s INNER JOIN top_tags tt ON s.tag = tt.tag GROUP BY s.listeners_lastfm, tt.tag
+)
+SELECT DISTINCT artist_mb, s.listeners_lastfm FROM stats s INNER JOIN top_listeners_by_tag tlbt 
+    ON s.tag = tlbt.tag AND s.listeners_lastfm = max_listeners ORDER BY s.listeners_lastfm DESC LIMIT 10;
+
+Answer:
+Coldplay
+Radiohead
+Red Hot Chili Peppers
+Rihanna
+Eminem
+The Killers
+Kanye West	
+Nirvana	
+Muse
+Queen
 
 
 
+d) Top 10 countries with max number of artists in lastfm
+
+Query:
+SELECT country_mb, COUNT(country_mb) as artists_per_country 
+FROM artists WHERE LENGTH(country_mb) > 0 GROUP BY country_mb ORDER BY artists_per_country DESC LIMIT 10;
+
+Answer:
+United States
+United Kingdom
+Germany
+Japan
+France
+Canada
+Italy
+Sweden
+Australia
+Finland
