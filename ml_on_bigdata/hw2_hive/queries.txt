@@ -1,0 +1,17 @@
+a) User with max number of scrobbles
+
+Query: 
+SELECT artist_mb, scrobbles_lastfm FROM artists ORDER BY scrobbles_lastfm DESC LIMIT 1;
+
+Answer:
+The Beatles (517126254 scrobbles)
+
+
+
+TODO:
+b) Most popular tag on lastfm
+c) Most popular artists from 10 most popular tags on lastfm
+d) ?
+
+
+
